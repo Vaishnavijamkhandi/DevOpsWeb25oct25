@@ -9,7 +9,8 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean package'
+                // Use Git Bash explicitly on Windows
+                bat '"C:\\Program Files\\Git\\bin\\bash.exe" -c "mvn clean package"'
             }
             post {
                 success {
