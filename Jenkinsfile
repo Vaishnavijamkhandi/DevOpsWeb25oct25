@@ -2,14 +2,13 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven3'   // Updated from local_maven → Maven3
+        maven 'Maven3'
     }
 
     stages {
 
         stage('Build') {
             steps {
-                // Use Git Bash explicitly on Windows
                 bat '"C:\\Program Files\\Git\\bin\\bash.exe" -c "mvn clean package"'
             }
             post {
@@ -28,7 +27,7 @@ pipeline {
                         alternativeDeploymentContext: '',
                         credentialsId: 'tomcat-creds',
                         path: '',
-                        url: 'http://localhost:8080/'
+                        url: 'http://localhost:8080/manager/text'
                     )
                 ],
                 contextPath: null,
