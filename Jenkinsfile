@@ -1,38 +1,37 @@
 pipeline {
     agent any
-    
-    tools {
-        maven 'local_maven'
-    }
 
-    parameters {
-        string(name: 'staging_server', defaultValue: '13.232.37.20', description: 'Remote Staging Server')
+    tools {
+        maven 'Maven3'   // Updated from local_maven → Maven3
     }
 
     stages {
+
         stage('Build') {
             steps {
-                // Use bat instead of sh for Windows
-                bat 'mvn clean package'
+                sh 'mvn clean package'
             }
             post {
                 success {
-                    echo 'Archiving the artifacts'
-                    archiveArtifacts artifacts: '**\\target\\*.war'
+                    echo "✅ Build successful. Archiving the artifacts..."
+                    archiveArtifacts artifacts: '**/target/*.war'
                 }
             }
         }
 
-        stage('Deployments') {
-            parallel {
-                stage('Deploy to Staging') {
-                    steps {
-                        // Use pscp (from PuTTY) on Windows instead of scp
-                        bat """
-                        pscp -v -batch -unsafe **\\*.war root@${params.staging_server}:/opt/tomcat/webapps/
-                        """
-                    }
-                }
+        stage('Deploy to Tomcat 9') {
+            steps {
+                echo "🚀 Deploying WAR file to Tomcat server..."
+                deploy adapters: [
+                    tomcat9(
+                        alternativeDeploymentContext: '',
+                        credentialsId: 'tomcat-creds',
+                        path: '',
+                        url: 'http://localhost:8080/'
+                    )
+                ],
+                contextPath: null,
+                war: '**/*.war'
             }
         }
     }
